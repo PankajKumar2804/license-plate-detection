@@ -1,2 +1,22 @@
-﻿# Requirements
+﻿# License Plate Detection Requirements
+
+# Core dependencies
+ultralytics==8.0.147
+opencv-python==4.8.0.74
+pytesseract==0.3.10
+numpy==1.24.3
+Pillow==10.0.0
+
+# API dependencies
+fastapi==0.100.0
+uvicorn==0.23.2
+pydantic==2.0.1
+
+# Development dependencies
+pytest==7.4.0
+pytest-cov==4.1.0
+
+# Optional dependencies
+torch==2.0.1
+torchvision==0.15.2
 
