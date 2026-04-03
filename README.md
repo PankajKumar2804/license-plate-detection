@@ -205,7 +205,3 @@ MIT License - See [LICENSE](LICENSE) file for details.
 - GitHub: [@PankajKumar2804](https://github.com/PankajKumar2804)
 - Email: pankaj@willsscorps.io
 - Organization: [willsscorps](https://github.com/PankajKumar2804/willsscorps.io)
-
----
-
-**Made with ❤️ by willsscorps - Your AI Development Partner**
