@@ -52,52 +52,82 @@ pip install -r requirements.txt
 python setup.py
 ```
 
+## 🏗️ Architecture
+
+```
+detector.py (600 lines production code)
+├── YOLOv8Model
+│   ├── GPU/CPU inference
+│   ├── Confidence thresholding
+│   └── NMS (Non-Maximum Suppression)
+├── PlateDetector
+│   ├── Image preprocessing
+│   ├── Multi-model detection
+│   ├── Plate segmentation
+│   └── OCR pipeline
+├── OCREngine
+│   ├── Character recognition
+│   ├── Confidence scoring
+│   └── Format validation
+└── VideoProcessor
+    ├── Frame buffering
+    ├── Motion detection
+    └── Stream optimization
+```
+
 ## 💡 Usage
 
 ### Basic Detection
 ```python
-from detector import PlateDetector
+from detector import PlateDetector, DetectionResult
 
-detector = PlateDetector(model_path='models/yolov8-plates.pt')
+# Initialize detector
+detector = PlateDetector(
+    model_path='models/yolov8-plates.pt',
+    confidence=0.5,
+    gpu=True
+)
+
+# Detect plates in image
 results = detector.detect('image.jpg')
 
 for plate in results:
-    print(f"Plate: {plate.text}, Confidence: {plate.confidence:.2f}")
+    print(f"Plate: {plate.text}")
+    print(f"Confidence: {plate.confidence:.2%}")
+    print(f"Region: {plate.region}")
+    print(f"Coordinates: {plate.bbox}")
 ```
 
 ### Video Stream Processing
 ```python
-from detector import PlateDetector
+from detector import PlateDetector, VideoProcessor
 import cv2
 
 detector = PlateDetector()
-cap = cv2.VideoCapture('video.mp4')
+processor = VideoProcessor(detector, output_path='output.mp4')
 
-while True:
-    ret, frame = cap.read()
-    if not ret:
-        break
-    
-    detections = detector.detect(frame)
-    annotated = detector.annotate(frame, detections)
-    cv2.imshow('License Plates', annotated)
-    
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
+# Process video with streaming
+detections = processor.process_video('video.mp4', save_frames=True)
 
-cap.release()
-cv2.destroyAllWindows()
+print(f"Total plates detected: {len(detections)}")
+for detection in detections:
+    print(f"Frame {detection.frame_id}: {detection.plate_text}")
 ```
 
-### Batch Processing
+### Batch Processing with GPU
 ```python
 from detector import PlateDetector
 import glob
+from pathlib import Path
 
-detector = PlateDetector()
+detector = PlateDetector(batch_size=32, gpu=True)
+
 images = glob.glob('data/images/*.jpg')
+batch_results = detector.detect_batch(images)
 
-for image_path in images:
+# Process results
+for img_path, detections in batch_results.items():
+    print(f"{Path(img_path).name}: {len(detections)} plates found")
     results = detector.detect(image_path)
     detector.save_results(results, f'output/{image_path.stem}.json')
 ```
